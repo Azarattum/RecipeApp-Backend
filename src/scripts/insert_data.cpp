@@ -1,3 +1,5 @@
+#include "../../includes/sqlite3.h"
+
 int main(int argc, char const *argv[])
 {
     /* code */
