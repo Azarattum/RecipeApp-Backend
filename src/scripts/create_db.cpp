@@ -18,7 +18,7 @@ int main(int argc, char const* argv[])
 	printf("Creating Recipes table...\n");
 	char* query = (char*)"CREATE TABLE IF NOT EXISTS Recipes ("
 						 "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-						 "tile TEXT NOT NULL,"
+						 "title TEXT NOT NULL,"
 						 "description TEXT NOT NULL,"
 						 "time TEXT NOT NULL,"
 						 "picture TEXT NOT NULL,"
