@@ -11,4 +11,11 @@ Searches recipes by ingredients.
 ### Installation: 
 ```sh
 git clone https://github.com/Azarattum/RecipeApp.git
+cd RecipeApp
 ```
+
+### Make Tasks:
+| Task    | Description                             |
+| ------- | --------------------------------------- |
+| scripts | Builds all scripts from *./src/scripts* |
+| clean   | Deletes all building artifacts          |
