@@ -23,7 +23,8 @@ int main(int argc, char const* argv[])
 						 "time TEXT NOT NULL,"
 						 "picture TEXT NOT NULL,"
 						 "text TEXT NOT NULL,"
-						 "steps TEXT NOT NULL );";
+						 "steps TEXT NOT NULL,"
+						 "UNIQUE(title) );";
 
 	char* errorMessage = 0;
 	if (sqlite3_exec(db, query, NULL, 0, &errorMessage) != SQLITE_OK) {
