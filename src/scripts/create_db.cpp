@@ -36,7 +36,8 @@ int main(int argc, char const* argv[])
 	printf("Creating Ingredients table...\n");
 	query = (char*)"CREATE TABLE IF NOT EXISTS Ingredients ("
 				   "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-				   "name TEXT NOT NULL );";
+				   "name TEXT NOT NULL,"
+				   "UNIQUE(name) );";
 
 	if (sqlite3_exec(db, query, NULL, 0, &errorMessage) != SQLITE_OK) {
 		fprintf(stderr, "SQL error: %s\n", errorMessage);
