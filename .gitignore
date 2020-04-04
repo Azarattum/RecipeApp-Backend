@@ -1,2 +1,3 @@
 dist/*.o
 RecipeApp.drawio
+src/scripts/tests.sql

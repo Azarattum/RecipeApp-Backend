@@ -24,7 +24,9 @@ int main(int argc, char const* argv[])
 						 "picture TEXT NOT NULL,"
 						 "text TEXT NOT NULL,"
 						 "steps TEXT NOT NULL,"
-						 "UNIQUE(title) );";
+						 "UNIQUE(title),"
+						 "CHECK(title <> '' and description <> '' and time <> ''"
+						 " and picture <> '' and text <> '' and steps <> '' ) );";
 
 	char* errorMessage = 0;
 	if (sqlite3_exec(db, query, NULL, 0, &errorMessage) != SQLITE_OK) {
@@ -38,7 +40,8 @@ int main(int argc, char const* argv[])
 	query = (char*)"CREATE TABLE IF NOT EXISTS Ingredients ("
 				   "id INTEGER PRIMARY KEY AUTOINCREMENT,"
 				   "name TEXT NOT NULL,"
-				   "UNIQUE(name) );";
+				   "UNIQUE(name),"
+				   "CHECK(name <> '') );";
 
 	if (sqlite3_exec(db, query, NULL, 0, &errorMessage) != SQLITE_OK) {
 		fprintf(stderr, "SQL error: %s\n", errorMessage);
@@ -52,7 +55,8 @@ int main(int argc, char const* argv[])
 				   "recipe_id INTEGER NOT NULL,"
 				   "ingredient_id INTEGER NOT NULL,"
 				   "amount TEXT NOT NULL,"
-				   "	PRIMARY KEY (recipe_id, ingredient_id) );";
+				   "PRIMARY KEY (recipe_id, ingredient_id),"
+				   "CHECK(amount <> '') );";
 
 	if (sqlite3_exec(db, query, NULL, 0, &errorMessage) != SQLITE_OK) {
 		fprintf(stderr, "SQL error: %s\n", errorMessage);

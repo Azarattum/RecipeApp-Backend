@@ -120,6 +120,7 @@ int on_ingredient(void* data, int argc, char** argv, char** azColName)
 
 	//Search for ingredients and create query
 	string query = "INSERT OR IGNORE INTO Ingredients (name) VALUES ";
+	int matched = 0;
 	while (regex_search(ingredients, matches, ingredient_regex)) {
 		string ingredient = matches[1];
 
@@ -128,13 +129,19 @@ int on_ingredient(void* data, int argc, char** argv, char** azColName)
 		query.append("\"),");
 
 		ingredients = matches.suffix();
+		matched = 1;
 	}
+	if (matched == 0) {
+		return 0;
+	}
+
 	char* c_query = (char*)query.c_str();
 	c_query[query.size() - 1] = ';';
 
 	//Execute the query to insert items
 	char* errorMessage = 0;
 	if (sqlite3_exec((sqlite3*)data, c_query, NULL, 0, &errorMessage) != SQLITE_OK) {
+		printf("Query: %s\n", c_query);
 		fprintf(stderr, "SQL error: %s\n", errorMessage);
 		sqlite3_free(errorMessage);
 		return 1;
