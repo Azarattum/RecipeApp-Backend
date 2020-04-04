@@ -72,6 +72,29 @@ int main(int argc, char const* argv[])
 	}
 	printf("\n");
 
+	//Fill relations
+	printf("Generating ingredient-recipe relationships from raw data...\n");
+	query = (char*)"ATTACH DATABASE '../data/raw.db' as raw;"
+				   "SELECT load_extension('../includes/glib_replace.so', 'sqlite3_extension_init');"
+				   "INSERT OR IGNORE INTO RecipeIngredients"
+				   "    SELECT r.id as recipe_id, i.id as ingredient_id,"
+				   "    REGEX_REPLACE('(^.*' || i.name || '[^:]*:\\s*|\\s*<br/>.*$)',("
+				   "        SELECT ingredients FROM raw.recipe_part_1"
+				   "        WHERE r.title = title"
+				   "    ), '') as count"
+				   "    FROM Recipes as r"
+				   "    INNER JOIN Ingredients as i on "
+				   "        (SELECT ingredients FROM raw.recipe_part_1 WHERE r.title = title)"
+				   "        LIKE ('%' || i.name || '%');"
+				   "SELECT* FROM RecipeIngredients";
+
+	sqlite3_enable_load_extension(db, 1);
+	if (sqlite3_exec(db, query, NULL, 0, &errorMessage) != SQLITE_OK) {
+		fprintf(stderr, "SQL error: %s\n", errorMessage);
+		sqlite3_free(errorMessage);
+		return 1;
+	}
+
 	printf("All done! Closing databases...\n");
 	sqlite3_close(db);
 	sqlite3_close(raw);
