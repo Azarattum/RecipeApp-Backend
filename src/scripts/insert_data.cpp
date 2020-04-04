@@ -41,7 +41,7 @@ int main(int argc, char const* argv[])
 	//Fill ingredients
 	counter = 0;
 	printf("Generating ingredients from raw data...\n");
-	char* query = (char*)"SELECT ingredients FROM recipe_part_1 LIMIT 10;";
+	char* query = (char*)"SELECT ingredients FROM recipe_part_1;";
 
 	if (sqlite3_exec(raw, query, on_ingredient, db, &errorMessage) != SQLITE_OK) {
 		fprintf(stderr, "SQL error: %s\n", errorMessage);
@@ -76,7 +76,7 @@ int main(int argc, char const* argv[])
 				   "        REGEX_REPLACE('=[|]{3}=',"
 				   "            step_img,"
 				   "        '\",\"') || '\"]' as steps"
-				   "    FROM raw.recipe_part_1 LIMIT 10;";
+				   "    FROM raw.recipe_part_1;";
 
 	if (sqlite3_exec(db, query, NULL, 0, &errorMessage) != SQLITE_OK) {
 		fprintf(stderr, "SQL error: %s\n", errorMessage);
