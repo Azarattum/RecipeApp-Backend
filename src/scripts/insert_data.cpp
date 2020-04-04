@@ -41,7 +41,7 @@ int main(int argc, char const* argv[])
 	//Fill ingredients
 	counter = 0;
 	printf("Generating ingredients from raw data...\n");
-	char* query = (char*)"SELECT ingredients FROM recipe_part_1 LIMIT 1;";
+	char* query = (char*)"SELECT ingredients FROM recipe_part_1 LIMIT 10;";
 
 	if (sqlite3_exec(raw, query, on_ingredient, db, &errorMessage) != SQLITE_OK) {
 		fprintf(stderr, "SQL error: %s\n", errorMessage);
@@ -76,7 +76,7 @@ int main(int argc, char const* argv[])
 				   "        REGEX_REPLACE('=[|]{3}=',"
 				   "            step_img,"
 				   "        '\",\"') || '\"]' as steps"
-				   "    FROM raw.recipe_part_1 LIMIT 3;";
+				   "    FROM raw.recipe_part_1 LIMIT 10;";
 
 	if (sqlite3_exec(db, query, NULL, 0, &errorMessage) != SQLITE_OK) {
 		fprintf(stderr, "SQL error: %s\n", errorMessage);
@@ -88,14 +88,14 @@ int main(int argc, char const* argv[])
 	printf("Generating ingredient-recipe relationships from raw data...\n");
 	query = (char*)"INSERT OR IGNORE INTO RecipeIngredients"
 				   "    SELECT r.id as recipe_id, i.id as ingredient_id,"
-				   "    REGEX_REPLACE('(^.*' || i.name || '[^:]*:\\s*|\\s*<br/>.*$)',("
+				   "    REGEX_REPLACE('(^.*' || i.name || '[^:]*:\\s*|\\s*([А-ЯЁ]|<br/>).*$)',("
 				   "        SELECT ingredients FROM raw.recipe_part_1"
 				   "        WHERE r.title = title"
-				   "    ), '') as count"
+				   "    ), '') as amount"
 				   "    FROM Recipes as r"
 				   "    INNER JOIN Ingredients as i on "
 				   "        (SELECT ingredients FROM raw.recipe_part_1 WHERE r.title = title)"
-				   "        LIKE ('%' || i.name || '%');";
+				   "        LIKE ('%>' || i.name || ' :%');";
 
 	if (sqlite3_exec(db, query, NULL, 0, &errorMessage) != SQLITE_OK) {
 		fprintf(stderr, "SQL error: %s\n", errorMessage);
