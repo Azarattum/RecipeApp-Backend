@@ -8,17 +8,8 @@ using namespace std;
 
 int on_ingredient(void* data, int argc, char** argv, char** azColName);
 int on_recipe(void* data, int argc, char** argv, char** azColName);
-int counter;
 
-const regex html_regex(
-	R"~(<[^>]*>)~",
-	regex::ECMAScript | regex::icase | regex::collate | regex::optimize);
-const regex spaces_regex(
-	R"~(\s+|\n+)~",
-	regex::ECMAScript | regex::icase | regex::collate | regex::optimize);
-const regex separator_regex(
-	R"~(=[|]{3}=)~",
-	regex::ECMAScript | regex::icase | regex::collate | regex::optimize);
+int counter;
 regex ingredient_regex;
 
 /**
@@ -45,6 +36,7 @@ int main(int argc, char const* argv[])
 		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(raw));
 		return 1;
 	}
+	sqlite3_enable_load_extension(db, 1);
 
 	//Fill ingredients
 	counter = 0;
@@ -61,22 +53,40 @@ int main(int argc, char const* argv[])
 	//Fill recipes
 	counter = 0;
 	printf("Generating recipes from raw data...\n");
-	query = (char*)"SELECT"
-				   "    title, description, time, image, step_description, step_img "
-				   "FROM recipe_part_1 LIMIT 1;";
+	query = (char*)"ATTACH DATABASE '../data/raw.db' as raw;"
+				   "SELECT load_extension('../includes/glib_replace.so', 'sqlite3_extension_init');"
+				   "INSERT OR IGNORE INTO Recipes"
+				   "    SELECT"
+				   "        rowid as id,"
+				   "        title,"
+				   "        REGEX_REPLACE('\\s+|\n+',"
+				   "        REGEX_REPLACE('<[^>]*>',"
+				   "            description, ''"
+				   "        ), ' '"
+				   "        ) as description,"
+				   "        time,"
+				   "        image as picture,"
+				   "        REGEX_REPLACE('=[|]{3}=',"
+				   "        REGEX_REPLACE('\\s+|\n+',"
+				   "        REGEX_REPLACE('<[^>]*>',"
+				   "            step_description, ''"
+				   "        ), ' '), '\n'"
+				   "        ) as text,"
+				   "        '[\"' ||"
+				   "        REGEX_REPLACE('=[|]{3}=',"
+				   "            step_img,"
+				   "        '\",\"') || '\"]' as steps"
+				   "    FROM raw.recipe_part_1 LIMIT 3;";
 
-	if (sqlite3_exec(raw, query, on_recipe, db, &errorMessage) != SQLITE_OK) {
+	if (sqlite3_exec(db, query, NULL, 0, &errorMessage) != SQLITE_OK) {
 		fprintf(stderr, "SQL error: %s\n", errorMessage);
 		sqlite3_free(errorMessage);
 		return 1;
 	}
-	printf("\n");
 
 	//Fill relations
 	printf("Generating ingredient-recipe relationships from raw data...\n");
-	query = (char*)"ATTACH DATABASE '../data/raw.db' as raw;"
-				   "SELECT load_extension('../includes/glib_replace.so', 'sqlite3_extension_init');"
-				   "INSERT OR IGNORE INTO RecipeIngredients"
+	query = (char*)"INSERT OR IGNORE INTO RecipeIngredients"
 				   "    SELECT r.id as recipe_id, i.id as ingredient_id,"
 				   "    REGEX_REPLACE('(^.*' || i.name || '[^:]*:\\s*|\\s*<br/>.*$)',("
 				   "        SELECT ingredients FROM raw.recipe_part_1"
@@ -85,10 +95,8 @@ int main(int argc, char const* argv[])
 				   "    FROM Recipes as r"
 				   "    INNER JOIN Ingredients as i on "
 				   "        (SELECT ingredients FROM raw.recipe_part_1 WHERE r.title = title)"
-				   "        LIKE ('%' || i.name || '%');"
-				   "SELECT* FROM RecipeIngredients";
+				   "        LIKE ('%' || i.name || '%');";
 
-	sqlite3_enable_load_extension(db, 1);
 	if (sqlite3_exec(db, query, NULL, 0, &errorMessage) != SQLITE_OK) {
 		fprintf(stderr, "SQL error: %s\n", errorMessage);
 		sqlite3_free(errorMessage);
@@ -127,60 +135,6 @@ int on_ingredient(void* data, int argc, char** argv, char** azColName)
 	//Execute the query to insert items
 	char* errorMessage = 0;
 	if (sqlite3_exec((sqlite3*)data, c_query, NULL, 0, &errorMessage) != SQLITE_OK) {
-		fprintf(stderr, "SQL error: %s\n", errorMessage);
-		sqlite3_free(errorMessage);
-		return 1;
-	}
-	printf("\rProccessed %d recipes...      ", ++counter);
-
-	return 0;
-}
-
-/**
- * Callback when recipe is selected
- * */
-int on_recipe(void* data, int argc, char** argv, char** azColName)
-{
-	//Define values
-	char* title = argv[0];
-	string description(argv[1]);
-	char* time = argv[2];
-	char* picture = argv[3];
-	string text(argv[4]);
-	string steps(argv[5]);
-
-	//Clear description
-	description = regex_replace(description, html_regex, "");
-	description = regex_replace(description, spaces_regex, " ");
-
-	//Format text
-	text = regex_replace(text, html_regex, "");
-	text = regex_replace(text, spaces_regex, " ");
-	text = regex_replace(text, separator_regex, "\n");
-
-	//Format steps
-	steps = regex_replace(steps, separator_regex, "\",\"");
-
-	//Prepare query
-	string query = "INSERT OR IGNORE INTO Recipes"
-				   "    (title,description,time,picture,text,steps) "
-				   "VALUES (\"";
-	query.append(title);
-	query.append("\",\"");
-	query.append(description);
-	query.append("\",\"");
-	query.append(time);
-	query.append("\",\"");
-	query.append(picture);
-	query.append("\",\"");
-	query.append(text);
-	query.append("\",'[\"");
-	query.append(steps);
-	query.append("\"]');");
-
-	//Execute the query to insert items
-	char* errorMessage = 0;
-	if (sqlite3_exec((sqlite3*)data, query.c_str(), NULL, 0, &errorMessage) != SQLITE_OK) {
 		fprintf(stderr, "SQL error: %s\n", errorMessage);
 		sqlite3_free(errorMessage);
 		return 1;

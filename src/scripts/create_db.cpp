@@ -51,7 +51,7 @@ int main(int argc, char const* argv[])
 	query = (char*)"CREATE TABLE IF NOT EXISTS RecipeIngredients ("
 				   "recipe_id INTEGER NOT NULL,"
 				   "ingredient_id INTEGER NOT NULL,"
-				   "count INTEGER NOT NULL,"
+				   "count TEXT NOT NULL,"
 				   "	PRIMARY KEY (recipe_id, ingredient_id) );";
 
 	if (sqlite3_exec(db, query, NULL, 0, &errorMessage) != SQLITE_OK) {
