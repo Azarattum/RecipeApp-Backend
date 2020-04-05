@@ -1,5 +1,4 @@
 #include "../../includes/sqlite3.h"
-#include <iostream>
 #include <regex>
 #include <stdio.h>
 #include <string>
