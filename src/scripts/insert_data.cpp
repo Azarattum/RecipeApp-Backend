@@ -87,15 +87,12 @@ int main(int argc, char const* argv[])
 	//Fill relations
 	printf("Generating ingredient-recipe relationships from raw data...\n");
 	query = (char*)"INSERT OR IGNORE INTO RecipeIngredients"
-				   "    SELECT r.id as recipe_id, i.id as ingredient_id,"
-				   "    REGEX_REPLACE('(^.*' || i.name || '[^:]*:\\s*|\\s*([А-ЯЁ]|<br/>).*$)',("
-				   "        SELECT ingredients FROM raw.recipe_part_1"
-				   "        WHERE r.title = title"
-				   "    ), '') as amount"
-				   "    FROM Recipes as r"
-				   "    INNER JOIN Ingredients as i on "
-				   "        (SELECT ingredients FROM raw.recipe_part_1 WHERE r.title = title)"
-				   "        LIKE ('%>' || i.name || ' :%');";
+				   "	SELECT r.rowid as recipe_id, i.id as ingredient_id,"
+				   "	REGEX_REPLACE('(^.*' || i.name || '[^:]*:\\s*|\\s*([А-ЯЁ]|<br/>).*$)',"
+				   "		r.ingredients, '') as amount"
+				   "	FROM raw.recipe_part_1 as r "
+				   "	INNER JOIN Ingredients as i on"
+				   "		r.ingredients LIKE ('%>' || i.name || ' :%');";
 
 	if (sqlite3_exec(db, query, NULL, 0, &errorMessage) != SQLITE_OK) {
 		fprintf(stderr, "SQL error: %s\n", errorMessage);
