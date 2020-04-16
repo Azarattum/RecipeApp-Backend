@@ -17,7 +17,7 @@ scripts: $(dist)sqlite3.o $(dist)create_db.o $(dist)insert_data.o
 	$(CXX) $(dist)insert_data.o $(dist)sqlite3.o -lpthread -ldl -o $(dist)insert_data
 
 #SQLite 3
-$(dist)sqlite.o: $(includes)sqlite3.c
+$(dist)sqlite3.o: $(includes)sqlite3.c
 	$(CC) -c $< -o $(dist)sqlite3.o
 
 #App
