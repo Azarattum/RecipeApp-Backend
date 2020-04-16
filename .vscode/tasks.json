@@ -12,6 +12,16 @@
             ],
             "group": "build",
             "problemMatcher": []
+        },
+        {
+            "type": "shell",
+            "label": "app",
+            "command": "make",
+            "args": [
+                "app"
+            ],
+            "group": "build",
+            "problemMatcher": []
         }
     ]
 }
