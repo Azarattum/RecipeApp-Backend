@@ -1,6 +1,7 @@
 #include "../../includes/crow.h"
 #include "database.cpp"
 #include <string>
+#include <unistd.h>
 
 using namespace std;
 using namespace crow;
@@ -112,7 +113,11 @@ void start(int port = 8000)
 	serve_api(&app);
 	serve_static(&app);
 
-	app.port(port).multithreaded().run();
+	app.port(port);
+	if (access("fullchain.pem", F_OK) != -1 && access("privkey.pem", F_OK) != -1) {
+		app.ssl_file("fullchain.pem", "privkey.pem");
+	}
+	app.multithreaded().run();
 }
 
 /**

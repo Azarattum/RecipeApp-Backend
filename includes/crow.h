@@ -214,7 +214,7 @@ private:
 #define CROW_ENABLE_LOGGING
 
 /* #ifdef - enables ssl */
-//#define CROW_ENABLE_SSL
+#define CROW_ENABLE_SSL
 
 /* #define - specifies log level */
 /*
