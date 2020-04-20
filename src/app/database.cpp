@@ -295,9 +295,9 @@ vector<recipe_result_t> search_recipe(vector<char*> ingredients, bool strict = f
  * */
 string sanitize_string(char* string)
 {
-	const regex sanitize(
+	const std::regex sanitize(
 		R"([^ёйцукенгшщзхъфывапролджэячсмитьбюЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮЁa-z,-.0-9 ]+)",
-		regex::icase);
+		std::regex::icase);
 	std::string sanitized = regex_replace(string, sanitize, "");
 	return sanitized;
 }

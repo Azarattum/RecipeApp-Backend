@@ -3,16 +3,17 @@
 #include <string>
 
 using namespace std;
+using namespace crow;
 
 struct UTFMiddleware {
 	struct context {
 	};
 
-	void before_handle(crow::request&, crow::response&, context&)
+	void before_handle(request&, response&, context&)
 	{
 	}
 
-	void after_handle(crow::request&, crow::response& res, context&)
+	void after_handle(request&, response& res, context&)
 	{
 		if (res.get_header_value("content-type") == "") {
 			res.add_header("content-type", "application/json; charset=UTF-8");
@@ -20,10 +21,10 @@ struct UTFMiddleware {
 	}
 };
 
-using App = crow::Crow<UTFMiddleware>;
+using RecipeApp = Crow<UTFMiddleware>;
 
-void serve_api(App*);
-void serve_static(App*);
+void serve_api(RecipeApp*);
+void serve_static(RecipeApp*);
 string url_decode(string&);
 
 std::unordered_map<std::string, std::string> MIMETYPES = {
@@ -104,35 +105,149 @@ std::unordered_map<std::string, std::string> MIMETYPES = {
 /**
  * Starts the HTTP server
  * */
-void start()
+void start(int port = 8000)
 {
-	App app;
+	RecipeApp app;
 
 	serve_api(&app);
 	serve_static(&app);
 
-	app.port(8000).multithreaded().run();
+	app.port(port).multithreaded().run();
 }
 
 /**
  * Registers all application API routes
  * */
-void serve_api(App* app)
+void serve_api(RecipeApp* app)
 {
 	CROW_ROUTE((*app), "/api/ingredients/search/<string>")
 	([](string query) {
-		return "";
+		char* name = (char*)url_decode(query).c_str();
+		vector<ingredient_result_t> results = search_ingredient(name);
+
+		crow::json::wvalue json;
+		//Ingredients
+		int i = 0;
+		for (auto&& result : results) {
+			json[i]["id"] = result.name;
+			json[i]["relevancy"] = result.relevancy;
+			i++;
+		}
+
+		return json::dump(json);
+	});
+
+	CROW_ROUTE((*app), "/api/recipe/search/<string>")
+	([](string query) {
+		vector<char*> ingredients;
+		string items = url_decode(query);
+		string delimiter = "&";
+
+		//Parse ingredients input
+		size_t pos = 0;
+		string token;
+		while ((pos = items.find(delimiter)) != std::string::npos) {
+			token = items.substr(0, pos);
+			items.erase(0, pos + delimiter.length());
+			if (token.length() > 0)
+				ingredients.push_back((char*)token.c_str());
+		}
+		ingredients.push_back((char*)items.c_str());
+
+		//Look for recipe
+		vector<recipe_result_t> results = search_recipe(ingredients, false);
+
+		crow::json::wvalue json;
+		//Ingredients
+		int i = 0;
+		//Recipe search
+		for (auto&& result : results) {
+			json[i]["id"] = result.id;
+			json[i]["title"] = result.title;
+			json[i]["description"] = result.description;
+			json[i]["time"] = result.time;
+			json[i]["picture"] = result.picture;
+			json[i]["relevancy"] = result.relevancy;
+			i++;
+		}
+
+		return json::dump(json);
+	});
+
+	CROW_ROUTE((*app), "/api/recipe/search/<string>/strict")
+	([](string query) {
+		vector<char*> ingredients;
+		string items = url_decode(query);
+		string delimiter = "&";
+
+		//Parse ingredients input
+		size_t pos = 0;
+		string token;
+		while ((pos = items.find(delimiter)) != std::string::npos) {
+			token = items.substr(0, pos);
+			items.erase(0, pos + delimiter.length());
+			if (token.length() > 0)
+				ingredients.push_back((char*)token.c_str());
+		}
+		ingredients.push_back((char*)items.c_str());
+
+		//Look for recipe
+		vector<recipe_result_t> results = search_recipe(ingredients, true);
+
+		crow::json::wvalue json;
+		//Ingredients
+		int i = 0;
+		//Recipe search
+		for (auto&& result : results) {
+			json[i]["id"] = result.id;
+			json[i]["title"] = result.title;
+			json[i]["description"] = result.description;
+			json[i]["time"] = result.time;
+			json[i]["picture"] = result.picture;
+			json[i]["relevancy"] = result.relevancy;
+			i++;
+		}
+
+		return json::dump(json);
+	});
+
+	CROW_ROUTE((*app), "/api/recipe/get/<int>")
+	([](int id) {
+		crow::json::wvalue json;
+		recipe_t recipe = get_recipe(id);
+
+		if (recipe.id == 0)
+			return json::dump(json);
+
+		//Recipe
+		json["id"] = recipe.id;
+		json["title"] = recipe.title;
+		json["description"] = recipe.description;
+		json["time"] = recipe.time;
+		json["picture"] = recipe.picture;
+		json["text"] = recipe.text;
+		json["steps"] = recipe.steps;
+
+		//Ingredients
+		int i = 0;
+		for (auto&& ingredient : recipe.ingredients) {
+			json["ingredients"][i]["name"] = ingredient.name;
+			json["ingredients"][i]["amount"] = ingredient.amount;
+			i++;
+		}
+
+		return json::dump(json);
 	});
 }
 
 /**
  * Serves any static content from ./public directory
  * */
-void serve_static(App* app)
+void serve_static(RecipeApp* app)
 {
 	//Load static resource
 	CROW_ROUTE((*app), "/<path>")
-	([](const crow::request& req, crow::response& res, string path) {
+	([](const request& req, response& res, string path) {
 		if (path.find("..") != string::npos) {
 			res.code = 403;
 		} else {
@@ -157,7 +272,7 @@ void serve_static(App* app)
 
 	//Serve index.html on default route
 	CROW_ROUTE((*app), "/")
-	([](const crow::request& req, crow::response& res) {
+	([](const request& req, response& res) {
 		ifstream in("public/index.html", ifstream::in);
 		if (in) {
 			ostringstream contents;
