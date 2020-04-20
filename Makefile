@@ -10,7 +10,7 @@ tests = $(source)scripts/
 
 #Entry points
 app: $(dist)app.o $(dist)sqlite3.o
-	$(CXX) $(dist)app.o $(dist)sqlite3.o -lpthread -ldl -o $(dist)app
+	$(CXX) $(dist)app.o $(dist)sqlite3.o -lpthread -ldl -lboost_system -o $(dist)app
 
 scripts: $(dist)sqlite3.o $(dist)create_db.o $(dist)insert_data.o
 	$(CXX) $(dist)create_db.o $(dist)sqlite3.o -lpthread -ldl -o $(dist)create_db

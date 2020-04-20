@@ -1,3 +1,6 @@
+#ifndef DATABASE_INCLUSION_GUARD
+#define DATABASE_INCLUSION_GUARD
+
 #include "../../includes/sqlite3.h"
 #include <algorithm>
 #include <regex>
@@ -298,3 +301,5 @@ string sanitize_string(char* string)
 	std::string sanitized = regex_replace(string, sanitize, "");
 	return sanitized;
 }
+
+#endif
