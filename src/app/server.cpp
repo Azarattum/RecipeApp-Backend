@@ -231,7 +231,7 @@ void serve_api(RecipeApp* app)
 		json["time"] = recipe.time;
 		json["picture"] = recipe.picture;
 		json["text"] = recipe.text;
-		json["steps"] = recipe.steps;
+		json["steps"] = json::load(recipe.steps);
 
 		//Ingredients
 		int i = 0;
