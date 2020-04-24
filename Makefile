@@ -1,6 +1,8 @@
+#Compilers
 CC = gcc
 CXX = g++
 
+#Paths
 source = src/
 dist = dist/
 includes = includes/
@@ -8,9 +10,14 @@ app = $(source)app/
 scripts = $(source)scripts/
 tests = $(source)scripts/
 
+#Libraries
+static = -lssl -lcrypto -lboost_system -lstdc++
+dynamic = -lpthread -ldl
+
+
 #Entry points
 app: $(dist)app.o $(dist)sqlite3.o
-	$(CXX) $(dist)app.o $(dist)sqlite3.o -lpthread -ldl -lboost_system -lssl -lcrypto -o $(dist)app
+	$(CXX) $(dist)app.o $(dist)sqlite3.o -Wl,-Bstatic $(static) -Wl,-Bdynamic $(dynamic) -Wl,--as-needed -o $(dist)app
 
 scripts: $(dist)sqlite3.o $(dist)create_db.o $(dist)insert_data.o
 	$(CXX) $(dist)create_db.o $(dist)sqlite3.o -lpthread -ldl -o $(dist)create_db
