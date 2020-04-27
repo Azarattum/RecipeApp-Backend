@@ -1,5 +1,5 @@
-# Recipe App
-Searches recipes by ingredients.
+# Recipe App [Back End]
+Searches recipes by ingredients. Check out our [frontend UI](https://github.com/Azarattum/RecipeApp-Frontend).
 
 ## Features:
   - Host static webserver with API
