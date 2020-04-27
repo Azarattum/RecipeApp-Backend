@@ -22,7 +22,21 @@ struct UTFMiddleware {
 	}
 };
 
-using RecipeApp = Crow<UTFMiddleware>;
+struct LocalCORSMiddleware {
+	struct context {
+	};
+
+	void before_handle(request&, response&, context&)
+	{
+	}
+
+	void after_handle(request&, response& res, context&)
+	{
+		res.add_header("Access-Control-Allow-Origin", "http://localhost:8080");
+	}
+};
+
+using RecipeApp = Crow<UTFMiddleware, LocalCORSMiddleware>;
 
 void serve_api(RecipeApp*);
 void serve_static(RecipeApp*);
@@ -134,7 +148,7 @@ void serve_api(RecipeApp* app)
 		//Ingredients
 		int i = 0;
 		for (auto&& result : results) {
-			json[i]["id"] = result.name;
+			json[i]["name"] = result.name;
 			json[i]["relevancy"] = result.relevancy;
 			i++;
 		}
