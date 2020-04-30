@@ -141,7 +141,9 @@ void serve_api(RecipeApp* app)
 {
 	CROW_ROUTE((*app), "/api/ingredients/search/<string>")
 	([](string query) {
-		char* name = (char*)url_decode(query).c_str();
+		query = url_decode(query);
+		char* name = (char*)malloc(sizeof(char) * query.length());
+		strcpy(name, query.c_str());
 		vector<ingredient_result_t> results = search_ingredient(name);
 
 		crow::json::wvalue json;
@@ -207,9 +209,12 @@ void serve_api(RecipeApp* app)
 		string token;
 		while ((pos = items.find(delimiter)) != std::string::npos) {
 			token = items.substr(0, pos);
+			if (token.length() > 0) {
+				char* ingredient = (char*)malloc(sizeof(char) * token.length());
+				strcpy(ingredient, (char*)token.c_str());
+				ingredients.push_back(ingredient);
+			}
 			items.erase(0, pos + delimiter.length());
-			if (token.length() > 0)
-				ingredients.push_back((char*)token.c_str());
 		}
 		ingredients.push_back((char*)items.c_str());
 
