@@ -108,11 +108,19 @@ vector<ingredient_result_t> search_ingredient(char* name)
 		+ " WHEN name LIKE '% " + sanitized + "%' THEN 1";
 
 	int length = sanitized.size();
-	for (int i = 0; i < length; i += 2) {
+	//Offset for mixed unicode strings
+	int offset = length - 1;
+	for (int i = 0; offset >= 0; i++) {
 		query += " WHEN name LIKE '";
 
-		sanitized.insert(max(length - 2 - i, 0), "%");
-		query += sanitized + "%' THEN " + to_string(-(i / 2));
+		if (sanitized[offset] >= 0) {
+			offset--;
+		} else {
+			offset -= 2;
+		}
+		sanitized.insert(max(offset + 1, 0), 1, '%');
+
+		query += sanitized + "%' THEN " + to_string(-i);
 	}
 
 	query += "  END) as relevancy"
