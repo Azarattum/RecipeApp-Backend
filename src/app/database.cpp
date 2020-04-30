@@ -241,10 +241,24 @@ vector<recipe_result_t> search_recipe(vector<char*> ingredients, bool strict = f
 	vector<recipe_result_t>* recipes = new vector<recipe_result_t>();
 
 	//Building query
-	string query = "SELECT id, title, description, time, picture,"
-				   "(	SELECT COUNT(name) FROM Ingredients"
-				   "	INNER JOIN RecipeIngredients ON ingredient_id = id"
-				   "	WHERE recipe_id = Recipes.id AND (";
+	string query = "SELECT id, title, description, time, picture,";
+
+	if (strict) {
+		query += " used as relevancy ";
+	} else {
+		query += " used * 2 - "
+				 "("
+				 "    SELECT COUNT(name) FROM Ingredients"
+				 "    INNER JOIN RecipeIngredients ON ingredient_id = id"
+				 "    WHERE recipe_id = Recipes.id"
+				 ") as relevancy ";
+	}
+
+	query += "FROM "
+			 "(SELECT *, ("
+			 "    SELECT COUNT(name) FROM Ingredients"
+			 "    INNER JOIN RecipeIngredients ON ingredient_id = id"
+			 "    WHERE recipe_id = Recipes.id AND (";
 
 	for (auto&& ingredient : ingredients) {
 		string name = sanitize_string(ingredient);
@@ -257,24 +271,19 @@ vector<recipe_result_t> search_recipe(vector<char*> ingredients, bool strict = f
 
 	//Cut out last OR
 	query = query.substr(0, query.size() - 3);
+	query += ")) as used FROM Recipes) as Recipes ";
 
 	if (strict) {
-		query += ")) as relevancy "
-				 "FROM Recipes WHERE "
-				 "(relevancy - "
+		query += "WHERE "
+				 "(used - "
 				 "("
 				 "    SELECT COUNT(name) FROM Ingredients"
 				 "    INNER JOIN RecipeIngredients ON ingredient_id = id"
 				 "    WHERE recipe_id = Recipes.id"
 				 ") >= 0) ORDER BY relevancy DESC LIMIT 20;";
 	} else {
-		query += ")) * 2 - "
-				 "("
-				 "    SELECT COUNT(name) FROM Ingredients"
-				 "    INNER JOIN RecipeIngredients ON ingredient_id = id"
-				 "    WHERE recipe_id = Recipes.id"
-				 ") as relevancy "
-				 "FROM Recipes ORDER BY relevancy DESC LIMIT 20;";
+		query += "WHERE used > 0 "
+				 "ORDER BY relevancy DESC LIMIT 20;";
 	}
 
 	//Executing the query
