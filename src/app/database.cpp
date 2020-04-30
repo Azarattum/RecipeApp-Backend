@@ -118,7 +118,7 @@ vector<ingredient_result_t> search_ingredient(char* name)
 	query += "  END) as relevancy"
 			 "  FROM Ingredients"
 			 "  WHERE relevancy NOT NULL"
-			 "  ORDER BY relevancy DESC"
+			 "  ORDER BY relevancy DESC, LENGTH(name) ASC"
 			 "  LIMIT 10;";
 
 	//Creating resulting vector
