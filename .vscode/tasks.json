@@ -22,6 +22,16 @@
             ],
             "group": "build",
             "problemMatcher": []
+        },
+        {
+            "type": "shell",
+            "label": "tests",
+            "command": "make",
+            "args": [
+                "tests"
+            ],
+            "group": "build",
+            "problemMatcher": []
         }
     ]
 }

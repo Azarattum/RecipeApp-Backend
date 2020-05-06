@@ -24,12 +24,15 @@ scripts: $(dist)sqlite3.o $(dist)create_db.o $(dist)insert_data.o
 	$(CXX) $(dist)create_db.o $(dist)sqlite3.o -lpthread -ldl -o $(dist)create_db
 	$(CXX) $(dist)insert_data.o $(dist)sqlite3.o -lpthread -ldl -o $(dist)insert_data
 
-tests: $(tests)test_app.cpp
-	$(CXX) -I$(includes) -o $(dist)test_app $(tests)test_app.cpp
+tests: $(dist)test_app.o $(dist)sqlite3.o
+	$(CXX) $(dist)test_app.o $(dist)sqlite3.o -lpthread -ldl -o $(dist)test_app
 
 #Test App
 $(tests)test_app.cpp: $(tests)test_app.h
 	$(python) $(tests)cxxtestgen --error-printer -o $(tests)test_app.cpp $(tests)test_app.h
+
+$(dist)test_app.o: $(tests)test_app.cpp
+	$(CXX) -c -I$(includes) -o $(dist)test_app.o $(tests)test_app.cpp
 
 #SQLite 3
 $(dist)sqlite3.o: $(includes)sqlite3.c
