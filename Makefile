@@ -1,6 +1,7 @@
 #Compilers
 CC = gcc
 CXX = g++
+python = python3
 
 #Paths
 source = src/
@@ -8,7 +9,7 @@ dist = dist/
 includes = includes/
 app = $(source)app/
 scripts = $(source)scripts/
-tests = $(source)scripts/
+tests = $(source)tests/
 
 #Libraries
 static = -lssl -lcrypto -lboost_system -lstdc++
@@ -22,6 +23,13 @@ app: $(dist)app.o $(dist)sqlite3.o
 scripts: $(dist)sqlite3.o $(dist)create_db.o $(dist)insert_data.o
 	$(CXX) $(dist)create_db.o $(dist)sqlite3.o -lpthread -ldl -o $(dist)create_db
 	$(CXX) $(dist)insert_data.o $(dist)sqlite3.o -lpthread -ldl -o $(dist)insert_data
+
+tests: $(tests)test_app.cpp
+	$(CXX) -I$(includes) -o $(dist)test_app $(tests)test_app.cpp
+
+#Test App
+$(tests)test_app.cpp: $(tests)test_app.h
+	$(python) $(tests)cxxtestgen --error-printer -o $(tests)test_app.cpp $(tests)test_app.h
 
 #SQLite 3
 $(dist)sqlite3.o: $(includes)sqlite3.c
