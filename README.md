@@ -14,23 +14,24 @@ Run in *./dist* folder:
 ```
 
 ### Installation: 
+1) Clone the repository
 ```sh
 git clone https://github.com/Azarattum/RecipeApp.git
 cd RecipeApp
 ```
-Install build dependencies (example for APT):
+2) Install build dependencies (example for APT):
 ```sh
 sudo apt install libssl-dev libboost-system-dev
 ```
-Make sure you have russian localizations on your system enabled. Open */etc/locale.gen* in any text editor:
+3) Make sure you have russian localizations on your system enabled. Open */etc/locale.gen* in any text editor:
 ```sh
 sudo nano /etc/locale.gen
 ```
-This line should be uncommented:
+4) This line should be uncommented:
 ```
 ru_RU.UTF-8 UTF-8
 ```
-Then regenerate your locales:
+5) Then regenerate your locales:
 ```sh
 sudo locale-gen
 ```
