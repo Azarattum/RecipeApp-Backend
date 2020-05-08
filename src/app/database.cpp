@@ -41,6 +41,7 @@ typedef struct {
 } recipe_t;
 
 string sanitize_string(char* string);
+bool is_string_empty(string str);
 
 /**
  * Connects to the database and returns sqlite3 pointer
@@ -131,6 +132,9 @@ vector<ingredient_result_t> search_ingredient(char* name)
 
 	//Creating resulting vector
 	vector<ingredient_result_t>* ingredients = new vector<ingredient_result_t>();
+	if (is_string_empty(sanitized)) {
+		return *ingredients;
+	}
 
 	//Executing the query
 	if (sqlite3_exec(
@@ -268,13 +272,23 @@ vector<recipe_result_t> search_recipe(vector<char*> ingredients, bool strict = f
 			 "    INNER JOIN RecipeIngredients ON ingredient_id = id"
 			 "    WHERE recipe_id = Recipes.id AND (";
 
+	bool all_empty = true;
 	for (auto&& ingredient : ingredients) {
 		string name = sanitize_string(ingredient);
+
+		if (is_string_empty(name)) {
+			continue;
+		}
+
+		all_empty = false;
 		name.erase(name.begin(), find_if(name.begin(), name.end(), [](int ch) {
 			return !isspace(ch);
 		}));
 
 		query += "	name LIKE '" + name + "%' OR name LIKE '% " + name + "%' OR";
+	}
+	if (all_empty) {
+		return *recipes;
 	}
 
 	//Cut out last OR
@@ -305,6 +319,20 @@ vector<recipe_result_t> search_recipe(vector<char*> ingredients, bool strict = f
 	close_db(db);
 
 	return *recipes;
+}
+
+/**
+ * Checks string on symbols emptyness
+ * */
+bool is_string_empty(string str)
+{
+	for (unsigned int i = 0; i < str.size(); i++) {
+		if (str[i] != ' ' || str[i] != '-' || str[i] != '.' || str[i] != ',') {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 /**
