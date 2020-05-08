@@ -5,13 +5,13 @@ class IncorrectSymbolsTestSuite : public CxxTest::TestSuite {
 public:
 	void testPartialIncorrectSymbols(void)
 	{
-		//Allowed symbols
+		//Allowed symbols:
 		//ёйцукенгшщзхъфывапролджэячсмитьбюЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮЁa-z,-.0-9
 		vector<char*> ingredients = { (char*)"хлеб" };
 		vector<recipe_result_t> results = search_recipe(ingredients, false);
 
 		vector<char*> ingredients_2 = { (char*)"х%л+е!б" };
-		vector<recipe_result_t> results_2 = search_recipe(ingredients, false);
+		vector<recipe_result_t> results_2 = search_recipe(ingredients_2, false);
 
 		TS_ASSERT_EQUALS(results.size(), results_2.size());
 
@@ -28,11 +28,24 @@ public:
 		}
 	}
 
-	void testFullIncorrectSymbols(void)
+	void testNullQueries(void)
 	{
-	}
+		//test full incorrect symbols:
+		vector<char*> ingredients = { (char*)"$%$%&%%^***(" };
+		vector<recipe_result_t> results = search_recipe(ingredients, false);
 
-	void testNoSymbols(void)
-	{
+		TS_ASSERT_EQUALS(results.size(), 0);
+
+		//test no symbols:
+		vector<char*> ingredients_2 = { (char*)"" };
+		vector<recipe_result_t> results_2 = search_recipe(ingredients_2, false);
+
+		TS_ASSERT_EQUALS(results_2.size(), 0);
+
+		//test allowed symbols with no russian letters: (. - a-z 0-9)
+		vector<char*> ingredients_3 = { (char*)"sw534-..--" };
+		vector<recipe_result_t> results_3 = search_recipe(ingredients_3, false);
+
+		TS_ASSERT_EQUALS(results_3.size(), 0);
 	}
 };
