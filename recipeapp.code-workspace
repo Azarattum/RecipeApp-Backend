@@ -68,7 +68,12 @@
 			"thread": "cpp",
 			"cfenv": "cpp",
 			"typeindex": "cpp",
-			"*.ipp": "cpp"
+			"*.ipp": "cpp",
+			"numeric": "cpp",
+			"random": "cpp",
+			"shared_mutex": "cpp",
+			"variant": "cpp",
+			"bit": "cpp"
 		}
 	}
 }
