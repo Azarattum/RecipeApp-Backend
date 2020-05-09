@@ -18,17 +18,16 @@ int main(int argc, char const* argv[])
 	}
 	if (par.exists("ingredient")) {
 		std::cout << endl;
-		std::cout << "==================================" << endl;
+		std::cout << "================= RECIPE =================" << endl;
 		string ing_result = par.retrieve<string>("i");
 		if (ing_result.length() > 0) {
 			vector<ingredient_result_t> ingredient_results = search_ingredient((char*)ing_result.c_str());
-			std::cout << "==================================" << endl;
 			//Ingredients
 			for (auto&& result : ingredient_results) {
 				std::cout << result.name << endl;
 			}
 		}
-		std::cout << "==================================" << endl;
+		std::cout << "================= RECIPE =================" << endl;
 		std::cout << endl;
 	}
 	//Get any recipe
@@ -39,24 +38,21 @@ int main(int argc, char const* argv[])
 			//Recipe
 			if (recipe.id > 0) {
 				std::cout << endl;
-				std::cout << "==================================" << endl;
+				std::cout << "================= RECIPE =================" << endl;
 				std::cout << recipe.title << endl
 						  << endl;
-				std::cout << endl;
 				std::cout << "id рецепта:" << endl;
 				std::cout << id << endl
 						  << endl;
 				std::cout << recipe.description << endl;
 				std::cout << recipe.time << endl;
 				std::cout << recipe.text << endl;
-				std::cout << recipe.steps << endl;
 				std::cout << endl
 						  << "Список ингредиентов" << endl;
 				for (auto&& ingredient : recipe.ingredients) {
-					std::cout << ingredient.name << endl;
-					std::cout << ingredient.amount << endl;
+					std::cout << ingredient.name << ": " << ingredient.amount << endl;
 				}
-				std::cout << "==================================" << endl;
+				std::cout << "================= RECIPE =================" << endl;
 				std::cout << endl;
 			} else {
 				std::cout << "Recipe not found" << endl;
@@ -67,7 +63,7 @@ int main(int argc, char const* argv[])
 	}
 	if (par.exists("s")) {
 		std::cout << endl;
-		std::cout << "==================================" << endl;
+		std::cout << "================= RECIPE =================" << endl;
 		vector<string> ingredients = par.retrieve<vector<string>>("s");
 		vector<char*>* ing_string = new vector<char*>();
 		for (auto&& result : ingredients) {
@@ -75,14 +71,15 @@ int main(int argc, char const* argv[])
 		}
 		vector<recipe_result_t> results = search_recipe(*ing_string, false);
 		for (auto&& result : results) {
-			std::cout << result.id << endl;
-			std::cout << result.title << endl;
+			std::cout << result.title << endl
+					  << endl;
+			std::cout << "id рецепта" << endl;
+			std::cout << result.id << endl
+					  << endl;
 			std::cout << result.description << endl;
 			std::cout << result.time << endl;
-			std::cout << result.picture << endl;
-			std::cout << result.relevancy << endl;
 		}
-		std::cout << "==================================" << endl;
+		std::cout << "================= RECIPE =================" << endl;
 		std::cout << endl;
 	}
 
