@@ -120,7 +120,7 @@ std::unordered_map<std::string, std::string> MIMETYPES = {
 /**
  * Starts the HTTP server
  * */
-void start(int port = 8000)
+void start_server(int port = 8000)
 {
 	RecipeApp app;
 

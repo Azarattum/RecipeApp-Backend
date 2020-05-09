@@ -40,7 +40,7 @@ $(dist)sqlite3.o: $(includes)sqlite3.c
 
 #App
 $(dist)app.o: $(app)main.cpp $(app)database.cpp $(app)server.cpp
-	$(CXX) -Wall -c $(app)main.cpp -o $(dist)app.o -g
+	$(CXX) -Wall -c $(app)main.cpp -o $(dist)app.o
 
 #Scripts
 $(dist)create_db.o: $(scripts)create_db.cpp

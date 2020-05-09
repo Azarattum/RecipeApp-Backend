@@ -8,9 +8,9 @@ Searches recipes by ingredients. Check out our [frontend UI](https://github.com/
   - Get your recipe
 
 ### Usage:
-Run in *./dist* folder:
+Application usage:
 ```sh
-./app
+./app [--help, -h] [--ingredient, -i INGREDIENT] [--search, -s SEARCH [SEARCH...]] [--strict] [--recipe, -r RECIPE] [--serve PORT]
 ```
 
 ### Installation: 
@@ -37,8 +37,9 @@ sudo locale-gen
 ```
 
 ### Make Tasks:
-| Task    | Description                             |
-| ------- | --------------------------------------- |
-| app     | Builds the application                  |
-| scripts | Builds all scripts from *./src/scripts* |
-| clean   | Deletes all building artifacts          |
+| Task    | Description                                 |
+| ------- | ------------------------------------------- |
+| app     | Builds the application                      |
+| scripts | Builds all scripts from *./src/scripts*     |
+| tests   | Builds application tests from *./src/tests* |
+| clean   | Deletes all build artifacts                 |
