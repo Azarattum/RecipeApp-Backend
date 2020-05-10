@@ -17,7 +17,7 @@ jobs:
     - name: Build App
       run: make app
     - name: Configure Locales
-      run: sudo echo ru_RU.UTF-8 UTF-8 >> /etc/locale.gen && locale-gen
+      run: echo ru_RU.UTF-8 UTF-8 | sudo tee --append /etc/locale.gen && locale-gen
     - name: Run App
       run: ./dist/app
       
