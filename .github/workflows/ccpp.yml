@@ -8,7 +8,18 @@ on:
 
 jobs:
   build:
-
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Dependencies
+      run: sudo apt install libssl-dev libboost-system-dev
+    - name: Build App
+      run: make app
+    - name: Run App
+      run: ./dist/app
+      
+  test:
     runs-on: ubuntu-latest
 
     steps:
