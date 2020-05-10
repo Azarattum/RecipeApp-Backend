@@ -16,6 +16,8 @@ jobs:
       run: sudo apt install libssl-dev libboost-system-dev
     - name: Build App
       run: make app
+    - name: Configure Locales
+      run: sudo echo ru_RU.UTF-8 UTF-8 >> /etc/locale.gen && locale-gen
     - name: Run App
       run: ./dist/app
       
