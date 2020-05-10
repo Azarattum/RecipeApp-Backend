@@ -20,6 +20,9 @@ jobs:
       run: echo ru_RU.UTF-8 UTF-8 | sudo tee --append /etc/locale.gen && sudo locale-gen
     - name: Run App
       run: ./dist/app
+    - uses: actions/upload-artifact@v2
+      with:
+        path: dist/app
       
   test:
     runs-on: ubuntu-latest
