@@ -145,6 +145,7 @@ void serve_api(RecipeApp* app)
 		char* name = (char*)malloc(sizeof(char) * query.length());
 		strcpy(name, query.c_str());
 		vector<ingredient_result_t> results = search_ingredient(name);
+		free(name);
 
 		crow::json::wvalue json;
 		//Ingredients
@@ -180,6 +181,9 @@ void serve_api(RecipeApp* app)
 
 		//Look for recipe
 		vector<recipe_result_t> results = search_recipe(ingredients, false);
+		for (auto&& ingredient : ingredients) {
+			free(ingredient);
+		}
 
 		crow::json::wvalue json;
 		//Ingredients
@@ -220,6 +224,9 @@ void serve_api(RecipeApp* app)
 
 		//Look for recipe
 		vector<recipe_result_t> results = search_recipe(ingredients, true);
+		for (auto&& ingredient : ingredients) {
+			free(ingredient);
+		}
 
 		crow::json::wvalue json;
 		//Ingredients
