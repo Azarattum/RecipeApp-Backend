@@ -145,6 +145,7 @@ void serve_api(RecipeApp* app)
 		char* name = (char*)malloc(sizeof(char) * query.length());
 		strcpy(name, query.c_str());
 		vector<ingredient_result_t> results = search_ingredient(name);
+		free(name);
 
 		crow::json::wvalue json;
 		//Ingredients
@@ -173,6 +174,7 @@ void serve_api(RecipeApp* app)
 				char* ingredient = (char*)malloc(sizeof(char) * token.length());
 				strcpy(ingredient, (char*)token.c_str());
 				ingredients.push_back(ingredient);
+				free(ingredient);
 			}
 			items.erase(0, pos + delimiter.length());
 		}
@@ -180,6 +182,7 @@ void serve_api(RecipeApp* app)
 
 		//Look for recipe
 		vector<recipe_result_t> results = search_recipe(ingredients, false);
+		ingredients.clear();
 
 		crow::json::wvalue json;
 		//Ingredients
@@ -194,6 +197,7 @@ void serve_api(RecipeApp* app)
 			json[i]["relevancy"] = result.relevancy;
 			i++;
 		}
+		results.clear();
 
 		return json::dump(json);
 	});
@@ -213,6 +217,7 @@ void serve_api(RecipeApp* app)
 				char* ingredient = (char*)malloc(sizeof(char) * token.length());
 				strcpy(ingredient, (char*)token.c_str());
 				ingredients.push_back(ingredient);
+				free(ingredient);
 			}
 			items.erase(0, pos + delimiter.length());
 		}
@@ -220,6 +225,7 @@ void serve_api(RecipeApp* app)
 
 		//Look for recipe
 		vector<recipe_result_t> results = search_recipe(ingredients, true);
+		ingredients.clear();
 
 		crow::json::wvalue json;
 		//Ingredients
@@ -234,6 +240,7 @@ void serve_api(RecipeApp* app)
 			json[i]["relevancy"] = result.relevancy;
 			i++;
 		}
+		results.clear();
 
 		return json::dump(json);
 	});
