@@ -92,12 +92,12 @@ int main(int argc, char const* argv[])
 		cout << endl;
 
 		vector<string> ingredients = parser.retrieve<vector<string>>("search");
-		vector<char*>* ing_string = new vector<char*>();
+		vector<char*> ing_string;
 		for (auto&& result : ingredients) {
-			ing_string->push_back((char*)result.c_str());
+			ing_string.push_back((char*)result.c_str());
 		}
 
-		vector<recipe_result_t> results = search_recipe(*ing_string, parser.exists("strict"));
+		vector<recipe_result_t> results = search_recipe(ing_string, parser.exists("strict"));
 		for (auto&& result : results) {
 			cout << "№ " << result.id << ") " << result.title << endl;
 			cout << "    [" << result.time << "]" << endl;

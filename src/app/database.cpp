@@ -67,6 +67,7 @@ sqlite3* connect_db()
 	}
 	sqlite3_enable_load_extension(db, 1);
 
+	delete filename;
 	return db;
 }
 
@@ -83,10 +84,10 @@ void close_db(sqlite3* db)
  * */
 int search_ingredient_callback(void* data, int argc, char** argv, char** azColName)
 {
-	ingredient_result_t* ingredient = new ingredient_result_t();
-	ingredient->name = argv[0];
-	ingredient->relevancy = atoi(argv[1]);
-	((vector<ingredient_result_t>*)data)->push_back(*ingredient);
+	ingredient_result_t ingredient;
+	ingredient.name = argv[0];
+	ingredient.relevancy = atoi(argv[1]);
+	((vector<ingredient_result_t>*)data)->push_back(ingredient);
 
 	return 0;
 }
@@ -131,21 +132,21 @@ vector<ingredient_result_t> search_ingredient(char* name)
 			 "  LIMIT 10;";
 
 	//Creating resulting vector
-	vector<ingredient_result_t>* ingredients = new vector<ingredient_result_t>();
+	vector<ingredient_result_t> ingredients;
 	if (is_string_empty(sanitized)) {
-		return *ingredients;
+		return ingredients;
 	}
 
 	//Executing the query
 	if (sqlite3_exec(
-			db, query.c_str(), search_ingredient_callback, ingredients, &errorMessage)
+			db, query.c_str(), search_ingredient_callback, &ingredients, &errorMessage)
 		!= SQLITE_OK) {
 		fprintf(stderr, "SQL error: %s\n", errorMessage);
 		sqlite3_free(errorMessage);
 	}
 	close_db(db);
 
-	return *ingredients;
+	return ingredients;
 }
 
 /**
@@ -171,11 +172,11 @@ int get_recipe_callback(void* data, int argc, char** argv, char** azColName)
 int get_recipe_ingredients_callback(void* data, int argc, char** argv, char** azColName)
 {
 	recipe_t* recipe = (recipe_t*)data;
-	ingredient_t* ingredient = new ingredient_t();
-	ingredient->name = argv[0];
-	ingredient->amount = argv[1];
+	ingredient_t ingredient;
+	ingredient.name = argv[0];
+	ingredient.amount = argv[1];
 
-	recipe->ingredients.push_back(*ingredient);
+	recipe->ingredients.push_back(ingredient);
 
 	return 0;
 }
@@ -189,7 +190,7 @@ recipe_t get_recipe(int id)
 	char* errorMessage = 0;
 	sqlite3* db = connect_db();
 	//Creating resulting recipe
-	recipe_t* recipe = new recipe_t();
+	recipe_t recipe;
 
 	//Building query
 	string query = "SELECT name, amount FROM Ingredients"
@@ -199,7 +200,7 @@ recipe_t get_recipe(int id)
 
 	//Executing the query
 	if (sqlite3_exec(
-			db, query.c_str(), get_recipe_ingredients_callback, recipe, &errorMessage)
+			db, query.c_str(), get_recipe_ingredients_callback, &recipe, &errorMessage)
 		!= SQLITE_OK) {
 		fprintf(stderr, "SQL error: %s\n", errorMessage);
 		sqlite3_free(errorMessage);
@@ -212,7 +213,7 @@ recipe_t get_recipe(int id)
 
 	//Executing the second query
 	if (sqlite3_exec(
-			db, query.c_str(), get_recipe_callback, recipe, &errorMessage)
+			db, query.c_str(), get_recipe_callback, &recipe, &errorMessage)
 		!= SQLITE_OK) {
 		fprintf(stderr, "SQL error: %s\n", errorMessage);
 		sqlite3_free(errorMessage);
@@ -220,7 +221,7 @@ recipe_t get_recipe(int id)
 
 	close_db(db);
 
-	return *recipe;
+	return recipe;
 }
 
 /**
@@ -228,15 +229,15 @@ recipe_t get_recipe(int id)
  * */
 int search_recipe_callback(void* data, int argc, char** argv, char** azColName)
 {
-	recipe_result_t* recipe = new recipe_result_t();
-	recipe->id = atoi(argv[0]);
-	recipe->title = argv[1];
-	recipe->description = argv[2];
-	recipe->time = argv[3];
-	recipe->picture = argv[4];
-	recipe->relevancy = atoi(argv[5]);
+	recipe_result_t recipe;
+	recipe.id = atoi(argv[0]);
+	recipe.title = argv[1];
+	recipe.description = argv[2];
+	recipe.time = argv[3];
+	recipe.picture = argv[4];
+	recipe.relevancy = atoi(argv[5]);
 
-	((vector<recipe_result_t>*)data)->push_back(*recipe);
+	((vector<recipe_result_t>*)data)->push_back(recipe);
 
 	return 0;
 }
@@ -250,7 +251,7 @@ vector<recipe_result_t> search_recipe(vector<char*> ingredients, bool strict = f
 	char* errorMessage = 0;
 	sqlite3* db = connect_db();
 	//Creating resulting recipe
-	vector<recipe_result_t>* recipes = new vector<recipe_result_t>();
+	vector<recipe_result_t> recipes;
 
 	//Building query
 	string query = "SELECT id, title, description, time, picture,";
@@ -288,7 +289,7 @@ vector<recipe_result_t> search_recipe(vector<char*> ingredients, bool strict = f
 		query += "	name LIKE '" + name + "%' OR name LIKE '% " + name + "%' OR";
 	}
 	if (all_empty) {
-		return *recipes;
+		return recipes;
 	}
 
 	//Cut out last OR
@@ -310,7 +311,7 @@ vector<recipe_result_t> search_recipe(vector<char*> ingredients, bool strict = f
 
 	//Executing the query
 	if (sqlite3_exec(
-			db, query.c_str(), search_recipe_callback, recipes, &errorMessage)
+			db, query.c_str(), search_recipe_callback, &recipes, &errorMessage)
 		!= SQLITE_OK) {
 		fprintf(stderr, "SQL error: %s\n", errorMessage);
 		sqlite3_free(errorMessage);
@@ -318,7 +319,7 @@ vector<recipe_result_t> search_recipe(vector<char*> ingredients, bool strict = f
 
 	close_db(db);
 
-	return *recipes;
+	return recipes;
 }
 
 /**

@@ -174,15 +174,20 @@ void serve_api(RecipeApp* app)
 				char* ingredient = (char*)malloc(sizeof(char) * token.length());
 				strcpy(ingredient, (char*)token.c_str());
 				ingredients.push_back(ingredient);
-				free(ingredient);
 			}
 			items.erase(0, pos + delimiter.length());
 		}
-		ingredients.push_back((char*)items.c_str());
+		char* ingredient = (char*)malloc(sizeof(char) * items.length());
+		strcpy(ingredient, (char*)items.c_str());
+
+		ingredients.push_back(ingredient);
 
 		//Look for recipe
 		vector<recipe_result_t> results = search_recipe(ingredients, false);
-		ingredients.clear();
+		//Free the ingredients
+		for (auto&& ingredient : ingredients) {
+			free(ingredient);
+		}
 
 		crow::json::wvalue json;
 		//Ingredients
@@ -197,7 +202,6 @@ void serve_api(RecipeApp* app)
 			json[i]["relevancy"] = result.relevancy;
 			i++;
 		}
-		results.clear();
 
 		return json::dump(json);
 	});
@@ -217,15 +221,20 @@ void serve_api(RecipeApp* app)
 				char* ingredient = (char*)malloc(sizeof(char) * token.length());
 				strcpy(ingredient, (char*)token.c_str());
 				ingredients.push_back(ingredient);
-				free(ingredient);
 			}
 			items.erase(0, pos + delimiter.length());
 		}
-		ingredients.push_back((char*)items.c_str());
+		char* ingredient = (char*)malloc(sizeof(char) * items.length());
+		strcpy(ingredient, (char*)items.c_str());
+
+		ingredients.push_back(ingredient);
 
 		//Look for recipe
 		vector<recipe_result_t> results = search_recipe(ingredients, true);
-		ingredients.clear();
+		//Free the ingredients
+		for (auto&& ingredient : ingredients) {
+			free(ingredient);
+		}
 
 		crow::json::wvalue json;
 		//Ingredients
@@ -240,7 +249,6 @@ void serve_api(RecipeApp* app)
 			json[i]["relevancy"] = result.relevancy;
 			i++;
 		}
-		results.clear();
 
 		return json::dump(json);
 	});
